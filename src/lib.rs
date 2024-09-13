@@ -99,6 +99,16 @@ impl Universe {
         self.to_string()
     }
 
+    pub fn randomize(&mut self) {
+        for i in 0..(self.width * self.height) as usize {
+            self.cells.set(i, js_sys::Math::random() < 0.5);
+        }
+    }
+
+    pub fn reset(&mut self) {
+        self.cells = fixedbitset::FixedBitSet::with_capacity((self.width * self.height) as usize);
+    }
+
     pub fn tick(&mut self) {
         let mut next = self.cells.clone();
 
@@ -128,6 +138,11 @@ impl Universe {
         }
 
         self.cells = next;
+    }
+
+    pub fn toggle_cell(&mut self, row: u32, col: u32) {
+        let idx = self.get_index(row, col);
+        self.cells.set(idx, !self.cells[idx]);
     }
 }
 

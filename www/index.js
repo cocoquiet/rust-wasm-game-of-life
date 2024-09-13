@@ -6,7 +6,7 @@ const GRID_COLOR = "#CCCCCC";
 const DEAD_COLOR = "#FFFFFF";
 const ALIVE_COLOR = "#000000";
 
-const universe = Universe.new();
+let universe = Universe.new();
 const width = universe.width();
 const height = universe.height();
 
@@ -18,14 +18,55 @@ canvas.height = (CELL_SIZE + 1) * height + 1;
 
 const ctx = canvas.getContext('2d');
 
+const playPauseButton = document.getElementById("play-pause");
+const randomizeButton = document.getElementById("randomize");
+const resetButton = document.getElementById("reset");
+
+let animationId = null;
+
 const renderloop = () => {
     universe.tick();
 
     drawGrid();
     drawCells();
     
-    requestAnimationFrame(renderloop);
+    animationId = requestAnimationFrame(renderloop);
 };
+
+const isPaused = () => {
+    return animationId === null;
+};
+
+const play = () => {
+    playPauseButton.textContent = "⏸";
+    renderloop();
+};
+
+const pause = () => {
+    playPauseButton.textContent = "▶";
+    cancelAnimationFrame(animationId);
+    animationId = null;
+};
+
+playPauseButton.addEventListener("click", event => {
+    if (isPaused()) {
+        play();
+    } else {
+        pause();
+    }
+});
+
+randomizeButton.addEventListener("click", event => {
+    universe.randomize();
+    drawGrid();
+    drawCells();
+});
+
+resetButton.addEventListener("click", event => {
+    universe.reset();
+    drawGrid();
+    drawCells();
+});
 
 const drawGrid = () => {
     ctx.beginPath();
@@ -82,6 +123,25 @@ const drawCells = () => {
     ctx.stroke();
 };
 
+canvas.addEventListener("click", event => {
+    const boundingRect = canvas.getBoundingClientRect();
+  
+    const scaleX = canvas.width / boundingRect.width;
+    const scaleY = canvas.height / boundingRect.height;
+  
+    const canvasLeft = (event.clientX - boundingRect.left) * scaleX;
+    const canvasTop = (event.clientY - boundingRect.top) * scaleY;
+  
+    const row = Math.min(Math.floor(canvasTop / (CELL_SIZE + 1)), height - 1);
+    const col = Math.min(Math.floor(canvasLeft / (CELL_SIZE + 1)), width - 1);
+  
+    universe.toggle_cell(row, col);
+  
+    drawGrid();
+    drawCells();
+});
+
 drawGrid();
 drawCells();
-requestAnimationFrame(renderloop);
+// requestAnimationFrame(renderloop);
+play();
