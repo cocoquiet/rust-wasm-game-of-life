@@ -103,8 +103,8 @@ impl Universe {
 #[wasm_bindgen]
 impl Universe {
     pub fn new() -> Universe {
-        let width = 64;
-        let height = 64;
+        let width = 128;
+        let height = 128;
 
         let size = (width * height) as usize;
         let mut cells = fixedbitset::FixedBitSet::with_capacity(size);
